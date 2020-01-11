@@ -31,7 +31,8 @@ namespace ColumnWidthTest
 			g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 			g.DrawRectangle(Pens.MediumVioletRed, 0.5f, 0.5f, this.Width - 1, this.Height - 1);
 
-			int[] columnWidths = ColumnPositioning.CalculateColumnWidths(this.Columns, this.Width, out int totalOccupiedWidth);
+			int totalAvailableWidth = this.Width;
+			int[] columnWidths = ColumnPositioning.CalculateColumnWidths(this.Columns, totalAvailableWidth, out int totalOccupiedWidth, out int totalFillableWidth);
 			Debug.Assert(columnWidths.Length == this.Columns.Length);
 
 			const int columnHeight = 20;
@@ -41,9 +42,14 @@ namespace ColumnWidthTest
 			{
 				var col = this.Columns[i];
 				var columnWidth = columnWidths[i];
-				g.FillRectangle(Brushes.Gray, x, 0, columnWidth, columnHeight);
+
+				bool isLimitedByMinSize = columnWidth <= col.MinWidth;
+				double effectiveFillPercentage = (double)(columnWidth - col.Width) / totalFillableWidth * 100.0;
+
+				Brush fillBrush = isLimitedByMinSize ? Brushes.IndianRed : Brushes.Gray;
+				g.FillRectangle(fillBrush, x, 0, columnWidth, columnHeight);
 				g.DrawRectangle(Pens.Black, x, 0, columnWidth, columnHeight);
-				g.DrawString(FormattableString.Invariant($"{col.Width}/{col.FillWeight}/{col.MinWidth} = {columnWidth}"), this.Font, Brushes.White, x, 0);
+				g.DrawString(FormattableString.Invariant($"{col.Width}/{col.FillWeight}/{col.MinWidth} = {columnWidth} | {effectiveFillPercentage:F1} %"), this.Font, Brushes.White, x, 0);
 				x += columnWidth;
 			}
 
@@ -52,7 +58,8 @@ namespace ColumnWidthTest
 			{
 				sb.AppendLine(width.ToString());
 			}
-			sb.AppendLine($"Total available: {this.Width}");
+			sb.AppendLine($"Total available: {totalAvailableWidth}");
+			sb.AppendLine($"Total fillable: {totalFillableWidth}");
 			sb.AppendLine($"Total occupied: {totalOccupiedWidth}");
 			g.DrawString(sb.ToString(), this.Font, Brushes.Black, 0, columnHeight);
 		}

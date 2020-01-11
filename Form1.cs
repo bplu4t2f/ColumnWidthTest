@@ -16,7 +16,9 @@ namespace ColumnWidthTest
 		{
 			this.InitializeComponent();
 			var control = new TestControl();
-			control.Size = this.ClientSize;
+			control.Width = this.ClientSize.Width - 150;
+			control.Height = this.ClientSize.Height;
+			control.Left = 150;
 			control.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Right;
 			this.Controls.Add(control);
 		}
