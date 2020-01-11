@@ -74,7 +74,7 @@ namespace ColumnWidthTest
 			this.MinWidth = MinWidth;
 		}
 
-		public int Width { get; }
+		public int Width { get; set; }
 		public double FillWeight { get; }
 		public int MinWidth { get; }
 	}

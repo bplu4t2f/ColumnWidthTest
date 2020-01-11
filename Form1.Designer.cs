@@ -28,13 +28,53 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
+			this.numericUpDownColumn = new System.Windows.Forms.NumericUpDown();
+			this.button1 = new System.Windows.Forms.Button();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownColumn)).BeginInit();
+			this.SuspendLayout();
+			// 
+			// numericUpDownColumn
+			// 
+			this.numericUpDownColumn.Location = new System.Drawing.Point(12, 12);
+			this.numericUpDownColumn.Maximum = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+			this.numericUpDownColumn.Name = "numericUpDownColumn";
+			this.numericUpDownColumn.Size = new System.Drawing.Size(86, 20);
+			this.numericUpDownColumn.TabIndex = 0;
+			// 
+			// button1
+			// 
+			this.button1.Location = new System.Drawing.Point(12, 38);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(75, 23);
+			this.button1.TabIndex = 1;
+			this.button1.Text = "button1";
+			this.button1.UseVisualStyleBackColor = true;
+			this.button1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Button1_MouseDown);
+			this.button1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Button1_MouseMove);
+			this.button1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Button1_MouseUp);
+			// 
+			// Form1
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.Controls.Add(this.button1);
+			this.Controls.Add(this.numericUpDownColumn);
+			this.Name = "Form1";
 			this.Text = "Form1";
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownColumn)).EndInit();
+			this.ResumeLayout(false);
+
 		}
 
 		#endregion
+
+		private System.Windows.Forms.NumericUpDown numericUpDownColumn;
+		private System.Windows.Forms.Button button1;
 	}
 }
 
