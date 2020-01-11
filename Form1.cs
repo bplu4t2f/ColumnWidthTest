@@ -25,33 +25,25 @@ namespace ColumnWidthTest
 
 		private readonly TestControl control;
 
-		private int dragColumn;
-		private int dragStartWidth;
-		private int dragStartMouseX;
-		private bool dragging;
+		private ResizeDragInfo resizeDragInfo;
 
 		private void Button1_MouseDown(object sender, MouseEventArgs e)
 		{
 			int index = (int)this.numericUpDownColumn.Value;
 			var col = this.control.Columns[index];
-			this.dragColumn = index;
-			this.dragStartWidth = col.Width;
-			this.dragStartMouseX = e.X;
-			this.dragging = true;
+			this.resizeDragInfo = new ResizeDragInfo(col, e.X);
 		}
 
 		private void Button1_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (!this.dragging) return;
-			var col = this.control.Columns[this.dragColumn];
-			int dx = e.X - this.dragStartMouseX;
-			col.Width = Math.Max(0, this.dragStartWidth + dx);
+			if (!this.resizeDragInfo.Active) return;
+			ColumnPositioning.ResizeDrag(this.resizeDragInfo, e.X);
 			this.control.Invalidate();
 		}
 
 		private void Button1_MouseUp(object sender, MouseEventArgs e)
 		{
-			this.dragging = false;
+			this.resizeDragInfo = default(ResizeDragInfo);
 		}
 	}
 }

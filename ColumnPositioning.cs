@@ -26,18 +26,26 @@ namespace ColumnWidthTest
 			int totalRemainingWidthToFulfillMinimum = 0;
 			var remainingWeights = new double[columns.Count];
 			double totalRemainingWeight = 0;
-			for (int i = 0; i < columns.Count; ++i)
+			int totalRemainingFillableWidth;
+			if (totalFillableWidth <= 0)
 			{
-				var col = columns[i];
-				int remainingWidthToFulfillMinimumRequirement = Math.Max(0, col.MinWidth - col.Width);
-				totalRemainingWidthToFulfillMinimum += remainingWidthToFulfillMinimumRequirement;
-				double partToFulfillMinimum = (double)remainingWidthToFulfillMinimumRequirement / totalFillableWidth;
-				double weightToFulfillMinimum = partToFulfillMinimum * totalWeight;
-				double remainingWeight = Math.Max(0, col.FillWeight - weightToFulfillMinimum);
-				remainingWeights[i] = remainingWeight;
-				totalRemainingWeight += remainingWeight;
+				totalRemainingFillableWidth = 0;
 			}
-			int totalRemainingFillableWidth = Math.Max(0, totalFillableWidth - totalRemainingWidthToFulfillMinimum);
+			else
+			{
+				for (int i = 0; i < columns.Count; ++i)
+				{
+					var col = columns[i];
+					int remainingWidthToFulfillMinimumRequirement = Math.Max(0, col.MinWidth - col.Width);
+					totalRemainingWidthToFulfillMinimum += remainingWidthToFulfillMinimumRequirement;
+					double partToFulfillMinimum = (double)remainingWidthToFulfillMinimumRequirement / totalFillableWidth;
+					double weightToFulfillMinimum = partToFulfillMinimum * totalWeight;
+					double remainingWeight = Math.Max(0, col.FillWeight - weightToFulfillMinimum);
+					remainingWeights[i] = remainingWeight;
+					totalRemainingWeight += remainingWeight;
+				}
+				totalRemainingFillableWidth = Math.Max(0, totalFillableWidth - totalRemainingWidthToFulfillMinimum);
+			}
 
 			var actualColumnWidths = new int[columns.Count];
 			totalOccupiedWidth = 0;
@@ -45,7 +53,7 @@ namespace ColumnWidthTest
 			{
 				var col = columns[i];
 				int remainingWidthToFulfillMinimumRequirement = Math.Max(0, col.MinWidth - col.Width);
-				int fillingWidth = Math.Max(0, (int)(remainingWeights[i] / totalRemainingWeight * totalRemainingFillableWidth));
+				int fillingWidth = totalRemainingWeight <= 0 ? 0 : Math.Max(0, (int)(remainingWeights[i] / totalRemainingWeight * totalRemainingFillableWidth));
 				int width = col.Width + remainingWidthToFulfillMinimumRequirement + fillingWidth;
 				actualColumnWidths[i] = width;
 				totalOccupiedWidth += width;
@@ -61,5 +69,28 @@ namespace ColumnWidthTest
 
 			return actualColumnWidths;
 		}
+
+		public static void ResizeDrag(ResizeDragInfo dragInfo, int mouseX)
+		{
+			if (!dragInfo.Active) return;
+			int dx = mouseX - dragInfo.MouseX;
+			dragInfo.Column.Width = Math.Max(0, dragInfo.StartWidth + dx);
+		}
+	}
+
+	struct ResizeDragInfo
+	{
+		public ResizeDragInfo(Column column, int mouseX)
+		{
+			this.Active = true;
+			this.Column = column ?? throw new ArgumentNullException(nameof(column));
+			this.StartWidth = column.Width;
+			this.MouseX = mouseX;
+		}
+
+		public bool Active { get; }
+		public Column Column { get; }
+		public int StartWidth { get; }
+		public int MouseX { get; }
 	}
 }
