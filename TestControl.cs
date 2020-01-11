@@ -32,7 +32,7 @@ namespace ColumnWidthTest
 			g.DrawRectangle(Pens.MediumVioletRed, 0.5f, 0.5f, this.Width - 1, this.Height - 1);
 
 			int totalAvailableWidth = this.Width;
-			int[] columnWidths = ColumnPositioning.CalculateColumnWidths(this.Columns, totalAvailableWidth, out int totalOccupiedWidth, out int totalFillableWidth, out double totalWeight);
+			int[] columnWidths = ColumnPositioning.CalculateColumnWidths(this.Columns, totalAvailableWidth, out int totalOccupiedWidth, out int totalFillableWidth);
 			Debug.Assert(columnWidths.Length == this.Columns.Length);
 
 			const int columnHeight = 20;
@@ -75,7 +75,7 @@ namespace ColumnWidthTest
 		}
 
 		public int Width { get; set; }
-		public double FillWeight { get; set; }
+		public double FillWeight { get; }
 		public int MinWidth { get; }
 	}
 }
