@@ -32,6 +32,11 @@ namespace ColumnWidthTest
 			new Column(0, 30)
 		};
 
+		private int GetHScrollValue()
+		{
+			return this.hScrollBar.Enabled ? this.hScrollBar.Value : 0;
+		}
+
 		protected override void OnSizeChanged(EventArgs e)
 		{
 			base.OnSizeChanged(e);
@@ -49,7 +54,7 @@ namespace ColumnWidthTest
 				return;
 			}
 			int[] columnWidths = ColumnPositioning.CalculateColumnWidths(this.Columns, this.Width, 10, out _, out _);
-			ColumnPositioning.HitTest(columnWidths, this.hScrollBar.Value, e.X, 5, out int columnIndex, out bool resizeHandle);
+			ColumnPositioning.HitTest(columnWidths, this.GetHScrollValue(), e.X, 5, out _, out bool resizeHandle);
 			this.Cursor = resizeHandle ? Cursors.VSplit : Cursors.Default;
 		}
 
@@ -60,7 +65,7 @@ namespace ColumnWidthTest
 			base.OnMouseDown(e);
 			if (e.Button != MouseButtons.Left) return;
 			int[] columnWidths = ColumnPositioning.CalculateColumnWidths(this.Columns, this.Width, 10, out _, out _);
-			ColumnPositioning.HitTest(columnWidths, this.hScrollBar.Value, e.X, 5, out int columnIndex, out bool resizeHandle);
+			ColumnPositioning.HitTest(columnWidths, this.GetHScrollValue(), e.X, 5, out int columnIndex, out bool resizeHandle);
 			if (resizeHandle)
 			{
 				this.resizeDragInfo = new ResizeDragInfo(this.Columns[columnIndex], e.X);
@@ -73,9 +78,9 @@ namespace ColumnWidthTest
 			if (e.Button == MouseButtons.Right && this.resizeDragInfo.Active)
 			{
 				// Right click during resize - revert
-				ColumnPositioning.ResizeDrag(this.resizeDragInfo, 0, 10);
-				this.RecalculateScrollBar();
+				this.resizeDragInfo.Column.Width = this.resizeDragInfo.StartWidth;
 				this.resizeDragInfo = default(ResizeDragInfo);
+				this.RecalculateScrollBar();
 				return;
 			}
 			if (e.Button != MouseButtons.Left) return;
@@ -106,13 +111,21 @@ namespace ColumnWidthTest
 
 			const int columnHeight = 20;
 
-			int scrollPosition = this.hScrollBar.Enabled ? this.hScrollBar.Value : 0;
+			int scrollPosition = this.GetHScrollValue();
 
 			int x = -scrollPosition;
 			for (int i = 0; i < this.Columns.Length; ++i)
 			{
+				// Column out of bounds (right). Don't need to draw any more columns.
+				if (x > totalAvailableWidth) break;
 				var col = this.Columns[i];
 				var columnWidth = columnWidths[i];
+				if (x + columnWidth < 0)
+				{
+					// Column out of bounds (left). Go to next column until we find one to draw.
+					x += columnWidth;
+					continue;
+				}
 
 				double effectiveFillPercentage = (double)(columnWidth - col.Width) / totalFillableWidth * 100.0;
 
