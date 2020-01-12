@@ -58,6 +58,34 @@ namespace ColumnWidthTest
 			int dx = mouseX - dragInfo.MouseX;
 			dragInfo.Column.Width = Math.Max(minimumColumnWidth, dragInfo.StartWidth + dx);
 		}
+
+		public static void HitTest(int[] columnWidths, int scrollValue, int mouseX, int resizeHandleDistance, out int columnIndex, out bool resizeHandle)
+		{
+			int x = 0;
+			for (int i = 0; i < columnWidths.Length; ++i)
+			{
+				int width = columnWidths[i];
+				int startPixel = x - scrollValue;
+				int endPixel = startPixel + width;
+				int resizeHandleStart = endPixel - resizeHandleDistance;
+				int resizeHandleEnd = endPixel + resizeHandleDistance;
+				if (mouseX >= resizeHandleStart && mouseX <= resizeHandleEnd)
+				{
+					resizeHandle = true;
+					columnIndex = i;
+					return;
+				}
+				if (mouseX >= startPixel && mouseX < endPixel)
+				{
+					resizeHandle = false;
+					columnIndex = i;
+					return;
+				}
+				x += width;
+			}
+			columnIndex = -1;
+			resizeHandle = default(bool);
+		}
 	}
 
 	struct ResizeDragInfo

@@ -38,6 +38,50 @@ namespace ColumnWidthTest
 			this.RecalculateScrollBar();
 		}
 
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			base.OnMouseMove(e);
+			if (this.resizeDragInfo.Active)
+			{
+				this.Cursor = Cursors.VSplit;
+				ColumnPositioning.ResizeDrag(this.resizeDragInfo, e.X, 10);
+				this.RecalculateScrollBar();
+				return;
+			}
+			int[] columnWidths = ColumnPositioning.CalculateColumnWidths(this.Columns, this.Width, 10, out _, out _);
+			ColumnPositioning.HitTest(columnWidths, this.hScrollBar.Value, e.X, 5, out int columnIndex, out bool resizeHandle);
+			this.Cursor = resizeHandle ? Cursors.VSplit : Cursors.Default;
+		}
+
+		private ResizeDragInfo resizeDragInfo;
+
+		protected override void OnMouseDown(MouseEventArgs e)
+		{
+			base.OnMouseDown(e);
+			if (e.Button != MouseButtons.Left) return;
+			int[] columnWidths = ColumnPositioning.CalculateColumnWidths(this.Columns, this.Width, 10, out _, out _);
+			ColumnPositioning.HitTest(columnWidths, this.hScrollBar.Value, e.X, 5, out int columnIndex, out bool resizeHandle);
+			if (resizeHandle)
+			{
+				this.resizeDragInfo = new ResizeDragInfo(this.Columns[columnIndex], e.X);
+			}
+		}
+
+		protected override void OnMouseUp(MouseEventArgs e)
+		{
+			base.OnMouseUp(e);
+			if (e.Button == MouseButtons.Right && this.resizeDragInfo.Active)
+			{
+				// Right click during resize - revert
+				ColumnPositioning.ResizeDrag(this.resizeDragInfo, 0, 10);
+				this.RecalculateScrollBar();
+				this.resizeDragInfo = default(ResizeDragInfo);
+				return;
+			}
+			if (e.Button != MouseButtons.Left) return;
+			this.resizeDragInfo = default(ResizeDragInfo);
+		}
+
 		public void RecalculateScrollBar()
 		{
 			int availableWidth = this.Width;
@@ -46,6 +90,7 @@ namespace ColumnWidthTest
 			int smallChange = this.Width / 20;
 			int largeChange = (int)(this.Width / 2.5);
 			ScrollBarHelper.SetScrollBarRangeEtc(this.hScrollBar, overhang, smallChange, largeChange);
+			this.Invalidate();
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
