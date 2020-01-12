@@ -37,7 +37,8 @@ namespace ColumnWidthTest
 		private void Button1_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (!this.resizeDragInfo.Active) return;
-			ColumnPositioning.ResizeDrag(this.resizeDragInfo, e.X);
+			ColumnPositioning.ResizeDrag(this.resizeDragInfo, e.X, 10);
+			this.control.RecalculateScrollBar();
 			this.control.Invalidate();
 		}
 
